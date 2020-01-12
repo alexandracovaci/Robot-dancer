@@ -1,0 +1,143 @@
+#include <Servo.h>
+// Pinii motor 1
+#define mpin00 6
+#define mpin01 9
+// Pinii motor 2
+#define mpin10 3
+#define mpin11 5
+Servo srv;
+void setup() {
+ // configurarea pinilor motor ca iesire, initial valoare 0
+ digitalWrite(mpin00, 0);
+ digitalWrite(mpin01, 0);
+ digitalWrite(mpin10, 0);
+ digitalWrite(mpin11, 0);
+ pinMode (mpin00, OUTPUT);
+ pinMode (mpin01, OUTPUT);
+ pinMode (mpin10, OUTPUT);
+ pinMode (mpin11, OUTPUT);
+
+ Serial.begin(38400); // Interfata Serial pentru slave
+}
+// Funcție pentru controlul unui motor
+// Intrare: pinii m1 și m2, direcția și viteza
+void StartMotor (int m1, int m2, int forward, int speed)
+{
+
+ if (speed==0) // oprire
+ {
+ digitalWrite(m1, 0);
+ digitalWrite(m2, 0);
+ }
+ else
+ {
+ if (forward) // forward = 0 mers in fata, forward = 1 mers in spate
+ {
+ digitalWrite(m2, 0);
+ analogWrite(m1, speed); // folosire PWM
+ }
+ else
+ {
+ digitalWrite(m1, 0);
+ analogWrite(m2, speed);
+ }
+ }
+}
+
+// Funcție de siguranță
+// Execută oprire motoare, urmată de delay
+void delayStopped(int ms)
+{
+ StartMotor (mpin00, mpin01, 0, 0);
+ StartMotor (mpin10, mpin11, 0, 0);
+ delay(ms);
+}
+
+String text;
+bool enable = false;
+void loop() {
+
+ if (Serial.available()) // Citire de la PC, trimite la Bluetooth// Citire de la Bluetooth
+ text = "";
+ char c = Serial.read(); //Citeste cate un caracter
+ while(c<=122 && c>=65)
+ {
+  text = text + c; // se formeaza cuvantul transmis prin bluetooth
+  c = Serial.read();
+ }
+ 
+// if(text != "");
+// Serial.println(text+"2");
+ 
+ if(text == "salsa") // se verifica daca textul primit de masina este ”salsa”
+ {
+ enable = true;
+ salsa();  // se apeleaza codul pentru primul dans
+ }
+ else if(text == "bachata") // se verifica daca textul primit de masina este ”bachata”
+ {
+  enable = true;
+  bachata(); // se apeleaza codul pentru al doilea dans
+ }
+ else
+ enable = false;
+ 
+// if(enable == true)
+// Serial.println("start2");
+ delay(500);
+} 
+
+void salsa()
+{
+   // Acum se pornesc motoarele DC, robotul merge in fata
+ StartMotor (mpin00, mpin01, 0, 16);
+ StartMotor (mpin10, mpin11, 0, 16);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+
+   // Acum se pornesc motoarele DC, robotul merge in spate
+ StartMotor (mpin00, mpin01, 1, 128);
+ StartMotor (mpin10, mpin11, 1, 128);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+
+   // Acum se pornesc motoarele DC, robotul merge in fata
+ StartMotor (mpin00, mpin01, 0, 112);
+ StartMotor (mpin10, mpin11, 0, 112);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+}
+
+void bachata()
+{
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+
+    // Acum se pornesc motoarele DC, robotul merge in fata
+ StartMotor (mpin00, mpin01, 0, 128);
+ StartMotor (mpin10, mpin11, 0, 128);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+
+   // Acum se pornesc motoarele DC, robotul merge in fata
+ StartMotor (mpin00, mpin01, 0, 128);
+ StartMotor (mpin10, mpin11, 0, 128);
+
+   // Acum se pornesc motoarele DC, robotul merge in spate
+ StartMotor (mpin00, mpin01, 1, 128);
+ StartMotor (mpin10, mpin11, 1, 128);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+
+   // Acum se pornesc motoarele DC, robotul merge in spate
+ StartMotor (mpin00, mpin01, 1, 128);
+ StartMotor (mpin10, mpin11, 1, 128);
+
+ delay (500); // Cât timp e motorul pornit
+ delayStopped(500); // Cât timp e oprit
+}
