@@ -5,7 +5,7 @@
 // Pinii motor 2
 #define mpin10 3
 #define mpin11 5
-Servo srv;
+
 void setup() {
  // configurarea pinilor motor ca iesire, initial valoare 0
  digitalWrite(mpin00, 0);
